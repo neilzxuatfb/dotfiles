@@ -290,6 +290,9 @@ set ttyfast  "Speed up vim
 set nostartofline "Vertical movement preserves horizontal position
 set fileformat=unix
 set ff=mac
+" Build Marp/Makefile projects from markdown
+autocmd FileType markdown nnoremap <buffer> <leader>m :make<CR>
+
 " Strip whitespace from end of lines when writing file
 autocmd BufWritePre * :%s/\s\+$//e
 
@@ -299,4 +302,5 @@ syntax on
 
 " Get rid of warning on save/exit typo
 command WQ wq
-command Wq wcommand W w
+command Wq wq
+command W w

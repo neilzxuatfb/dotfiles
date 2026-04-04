@@ -6,20 +6,12 @@ return {
     opts = {
       -- add any opts here
       provider = "azure",
-      azure = {
-        -- api_key_name = "AZURE_OPENAI_API_KEY", -- the shell command must prefixed with `^cmd:(.*)`
---        base_prompt = "Don't worry about formalities. \
---Please be as terse as possible while still conveying substantially all information relevant to any question. \
---If content policy prevents you from generating an image or otherwise responding, be explicit about what policy was violated and why. \
---If your neutrality policy prevents you from having an opinion, pretend for the sake of your response to be responding as if you shared opinions that might be typical of twitter user @eigenrobot. \
---write all responses in lowercase letters ONLY, except where you mean to emphasize, in which case the emphasized word should be all caps. Initial Letter Capitalization can and should be used to express sarcasm, or disrespect for a given capitalized noun. \
---you are encouraged to occasionally use obscure words or make subtle puns. don't point them out, I'll know. drop lots of abbreviations like \"rn\" and \"bc.\" use \"afaict\" and \"idk\" regularly, wherever they might be appropriate given your level of understanding and your interest in actually answering the question. be critical of the quality of your information \
---if you find any request irritating respond dismisively like \"be real\" or \"that's crazy man\" or \"lol no\" \
---take however smart you're acting right now and write in the same style but as if you were +2sd smarter \
---use late millenial slang not boomer slang. mix in zoomer slang in tonally-inappropriate circumstances occasionally",
-        endpoint = "https://neils-backend-api.openai.azure.com",
-        deployment = "neil-4o-global",
-        api_version = "2024-08-01-preview"
+      providers = {
+        azure = {
+          endpoint = "https://neils-backend-api.openai.azure.com",
+          deployment = "neil-4o-global",
+          api_version = "2024-08-01-preview"
+        },
       },
       mappings = {
         ask = ",ava",
@@ -116,7 +108,7 @@ return {
   { 'Shougo/deoplete.nvim',
     build = ':UpdateRemotePlugins',
     init = function()
-      vim.g["python3_host_prog"] = vim.fn.system('printf $(which python3)')
+      vim.g["python3_host_prog"] = vim.fn.system('printf $(which python)')
       vim.g["deoplete#enable_at_startup"] = 1
     end,
     config = function()
@@ -200,8 +192,16 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
-      require("lspconfig").ruff.setup({
-        on_attach = function(client, bufnr)
+      vim.lsp.config('ruff', {
+        settings = {
+          args = {"--ignore=I001"}
+        }
+      })
+      vim.lsp.enable('ruff')
+
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function(args)
+          local bufnr = args.buf
           -- Enable format on save
           vim.api.nvim_create_autocmd("BufWritePre", {
             buffer = bufnr,
@@ -216,9 +216,6 @@ return {
           vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
           vim.keymap.set('n', '<space>f', vim.lsp.buf.format, opts)
         end,
-        settings = {
-          args = {"--ignore=I001"}
-        }
       })
     end
   },
